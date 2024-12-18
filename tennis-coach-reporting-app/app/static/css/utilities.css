@@ -1,0 +1,32 @@
+/* app/static/css/utilities.css */
+
+/* Text alignment */
+.text-center {
+    text-align: center;
+}
+
+/* Margin utilities */
+.m-0 {
+    margin: 0;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+/* Padding utilities */
+.p-0 {
+    padding: 0;
+}
+
+.pt-4 {
+    padding-top: 1rem;
+}
+
+.pb-4 {
+    padding-bottom: 1rem;
+}

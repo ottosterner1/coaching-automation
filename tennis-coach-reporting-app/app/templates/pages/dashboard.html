@@ -1,0 +1,18 @@
+<!-- app/templates/pages/dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Add a container for your React app that preserves your existing layout -->
+<div class="container mx-auto px-4">
+    <div id="react-root"></div>
+</div>
+
+<!-- Development -->
+{% if config.DEBUG %}
+<script type="module" src="http://localhost:5173/@vite/client"></script>
+<script type="module" src="http://localhost:5173/src/main.tsx"></script>
+{% else %}
+<!-- Production -->
+<script type="module" src="{{ url_for('static', filename='dist/main.js') }}"></script>
+{% endif %}
+{% endblock %}

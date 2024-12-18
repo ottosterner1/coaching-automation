@@ -18,7 +18,14 @@
         {% block content %}{% endblock %}
     </main>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% if config.DEBUG %}
+        <!-- Load the React component via Vite in development mode -->
+        <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    {% else %}
+        <!-- Load the production build of the React component -->
+        <script type="module" src="{{ url_for('static', filename='dist/assets/main-BobEDBep.js') }}"></script>
+    {% endif %}
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

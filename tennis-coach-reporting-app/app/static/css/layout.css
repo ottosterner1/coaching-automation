@@ -1,0 +1,22 @@
+/* app/static/css/layout.css */
+
+/* Container for centering content */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Grid layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Flexbox layout */
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

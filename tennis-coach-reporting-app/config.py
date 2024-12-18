@@ -40,6 +40,10 @@ class Config:
     OAUTH_AUTHORIZE_URL = f"https://{COGNITO_DOMAIN}/oauth2/authorize"
     OAUTH_TOKEN_URL = f"https://{COGNITO_DOMAIN}/oauth2/token"
     OAUTH_USERINFO_URL = f"https://{COGNITO_DOMAIN}/oauth2/userInfo"
+
+    # Static file config
+    STATIC_FOLDER = 'static'
+    STATIC_URL_PATH = '/static'
     
     # Metadata URL
     COGNITO_METADATA_URL = f'https://cognito-idp.{AWS_COGNITO_REGION}.amazonaws.com/{AWS_COGNITO_USER_POOL_ID}/.well-known/openid-configuration'
@@ -55,9 +59,16 @@ class Config:
         print(f"Using PostgreSQL database at {db_url.hostname}")
         print(f"Cognito Domain: {self.COGNITO_DOMAIN}")
 
+        # CORS settings
+    CORS_ORIGIN_WHITELIST = [
+        'http://localhost:3000',  # React dev server
+        'http://127.0.0.1:3000'
+    ]
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    # Allow CORS in development
+    CORS_ENABLED = True
 
 
 class ProductionConfig(Config):

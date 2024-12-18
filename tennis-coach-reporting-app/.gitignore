@@ -1,0 +1,19 @@
+env/
+
+# PyInstaller
+dist/
+build/
+*.spec
+config/
+files/
+.venv/
+data/
+.DS_Store
+tennis-reporting-venv/
+
+# Any __pycache__ directories
+__pycache__/
+venv/
+.env
+.vscode/
+node_modules/
