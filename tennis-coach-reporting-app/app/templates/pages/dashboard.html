@@ -2,17 +2,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Add a container for your React app that preserves your existing layout -->
-<div class="container mx-auto px-4">
-    <div id="react-root"></div>
+<div id="react-root" style="border: 1px solid red; min-height: 200px; padding: 20px;">
+    If you can see this, React hasn't mounted yet
 </div>
 
-<!-- Development -->
-{% if config.DEBUG %}
-<script type="module" src="http://localhost:5173/@vite/client"></script>
-<script type="module" src="http://localhost:5173/src/main.tsx"></script>
+{% if config['DEBUG'] %}
+    <!-- Add debugging info -->
+    <div id="debug-info" style="display:none;">
+        <p>Flask Debug Mode: Active</p>
+        <p>Looking for Vite server on port 5173</p>
+    </div>
+
+    <script>
+        console.log('Debug info:', {
+            'pageLoaded': true,
+            'rootElement': document.getElementById('react-root'),
+            'timestamp': new Date().toISOString()
+        });
+    </script>
+
+    <!-- Direct script tags for Vite -->
+    <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/src/main.tsx"></script>
 {% else %}
-<!-- Production -->
-<script type="module" src="{{ url_for('static', filename='dist/main.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='dist/main.js') }}"></script>
 {% endif %}
 {% endblock %}

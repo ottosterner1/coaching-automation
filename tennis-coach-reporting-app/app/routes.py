@@ -338,9 +338,9 @@ def serialize_coach(coach):
 
 
 @main.route('/dashboard')
-@login_required
-@verify_club_access()
 def dashboard():
+    # Add some debugging
+    print("Rendering dashboard template")
     return render_template('pages/dashboard.html')
     
 # @main.route('/api/dashboard', methods=['GET'])

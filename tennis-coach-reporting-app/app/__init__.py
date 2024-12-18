@@ -8,7 +8,6 @@ from app.auth import init_oauth
 from flask_cors import CORS
 
 
-
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
@@ -43,10 +42,26 @@ def configure_login_manager(app):
 def create_app(config_class=Config):
     """Application factory function."""
     app = Flask(__name__)
-    CORS(app)
+    
+    # Configure CORS with specific settings for Vite
+    CORS(app, resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:5173",  # Vite dev server
+                "http://127.0.0.1:5173",
+                "http://localhost:8000",   # Flask dev server
+                "http://127.0.0.1:8000"
+            ],
+            "supports_credentials": True
+        }
+    })
     
     # Configure the app
     app.config.from_object(config_class)
+    
+    # Print debug information
+    print(f"Flask Debug Mode: {app.debug}")
+    print(f"CORS origins configured for: {app.config.get('CORS_ORIGINS', 'default origins')}")
     
     # Ensure instance folder exists
     try:
@@ -68,8 +83,10 @@ def create_app(config_class=Config):
     def internal_error(error):
         db.session.rollback()
         return "Internal server error", 500
+    
+    # Add a route to test CORS
+    @app.route('/api/test-cors', methods=['GET'])
+    def test_cors():
+        return {'status': 'CORS is working'}
         
     return app
-
-# Import models after db initialization to avoid circular imports
-from app.models import User, Student, Report

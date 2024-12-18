@@ -59,11 +59,14 @@ class Config:
         print(f"Using PostgreSQL database at {db_url.hostname}")
         print(f"Cognito Domain: {self.COGNITO_DOMAIN}")
 
-        # CORS settings
-    CORS_ORIGIN_WHITELIST = [
-        'http://localhost:3000',  # React dev server
-        'http://127.0.0.1:3000'
+    # CORS Configuration
+    CORS_ORIGINS = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000'
     ]
+    CORS_SUPPORTS_CREDENTIALS = True
 
 class DevelopmentConfig(Config):
     DEBUG = True
