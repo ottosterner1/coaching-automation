@@ -43,15 +43,15 @@ def create_app(config_class=Config):
     """Application factory function."""
     app = Flask(__name__)
     
-    # Configure CORS with specific settings for Vite
+    # Configure CORS
     CORS(app, resources={
-        r"/*": {
+        r"/api/*": {
             "origins": [
                 "http://localhost:5173",  # Vite dev server
-                "http://127.0.0.1:5173",
-                "http://localhost:8000",   # Flask dev server
-                "http://127.0.0.1:8000"
+                "http://localhost:8000"   # Flask dev server
             ],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
         }
     })

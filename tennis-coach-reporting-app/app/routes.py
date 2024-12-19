@@ -23,6 +23,8 @@ from flask import send_file, make_response
 from io import BytesIO
 import zipfile
 from app.config.clubs import get_club_from_email, TENNIS_CLUBS
+from flask_cors import CORS, cross_origin
+from sqlalchemy import func
 
 main = Blueprint('main', __name__)
 
@@ -337,11 +339,133 @@ def serialize_coach(coach):
 #         return redirect(url_for('main.home'))
 
 
+# Keep your existing dashboard route for the initial page load
 @main.route('/dashboard')
+@login_required
+@verify_club_access()
 def dashboard():
-    # Add some debugging
-    print("Rendering dashboard template")
     return render_template('pages/dashboard.html')
+
+@main.route('/api/dashboard')
+@login_required
+@verify_club_access()
+def dashboard_data():
+    try:
+        print("API endpoint hit")  # Debug print
+        tennis_club_id = current_user.tennis_club_id
+        selected_period_id = request.args.get('period', type=int)
+        print(f"Selected period: {selected_period_id}")  # Debug print
+
+        # Get periods
+        periods = TeachingPeriod.query.filter_by(
+            tennis_club_id=tennis_club_id
+        ).order_by(TeachingPeriod.start_date.desc()).all()
+        print(f"Found {len(periods)} periods")  # Debug print
+
+        response_data = {
+            'periods': [{
+                'id': period.id,
+                'name': period.name
+            } for period in periods],
+            'selectedPeriodId': selected_period_id,
+            'players': [],
+            'currentGroups': [],
+            'recommendedGroups': [],
+            'isAdmin': current_user.is_admin or current_user.is_super_admin,
+            'allReportsCompleted': False
+        }
+        print("Sending response:", response_data)  # Debug print
+        return jsonify(response_data)
+
+    except Exception as e:
+        print(f"Error in dashboard_data: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/api/dashboard/stats')
+@login_required
+@verify_club_access()
+def dashboard_stats():
+    try:
+        print("Dashboard stats endpoint hit")  # Debug print
+        tennis_club_id = current_user.tennis_club_id
+        selected_period_id = request.args.get('period', type=int)
+        print(f"Tennis club ID: {tennis_club_id}, Selected period: {selected_period_id}")  # Debug print
+        
+        # Get all teaching periods for the club
+        periods = TeachingPeriod.query.filter_by(
+            tennis_club_id=tennis_club_id
+        ).order_by(TeachingPeriod.start_date.desc()).all()
+        print(f"Found {len(periods)} periods")  # Debug print
+        
+        # Base queries
+        players_query = ProgrammePlayers.query.filter_by(tennis_club_id=tennis_club_id)
+        if selected_period_id:
+            players_query = players_query.filter_by(teaching_period_id=selected_period_id)
+            
+        total_students = players_query.count()
+        print(f"Total students: {total_students}")  # Debug print
+        
+        reports_query = Report.query.join(ProgrammePlayers).filter(
+            ProgrammePlayers.tennis_club_id == tennis_club_id
+        )
+        if selected_period_id:
+            reports_query = reports_query.filter(Report.teaching_period_id == selected_period_id)
+            
+        total_reports = reports_query.count()
+        print(f"Total reports: {total_reports}")  # Debug print
+        
+        completion_rate = round((total_reports / total_students * 100) if total_students > 0 else 0, 1)
+        
+        # Group distribution query
+        group_counts = db.session.query(
+            TennisGroup.name,
+            func.count(ProgrammePlayers.id).label('count')
+        ).join(
+            ProgrammePlayers, TennisGroup.id == ProgrammePlayers.group_id
+        ).filter(
+            ProgrammePlayers.tennis_club_id == tennis_club_id
+        )
+        
+        if selected_period_id:
+            group_counts = group_counts.filter(
+                ProgrammePlayers.teaching_period_id == selected_period_id
+            )
+            
+        group_counts = group_counts.group_by(TennisGroup.name).all()
+        print(f"Group counts: {group_counts}")  # Debug print
+        
+        response_data = {
+            'periods': [{
+                'id': p.id,
+                'name': p.name
+            } for p in periods],
+            'stats': {
+                'totalStudents': total_students,
+                'totalReports': total_reports,
+                'reportCompletion': completion_rate,
+                'currentGroups': [{
+                    'name': name,
+                    'count': count
+                } for name, count in group_counts]
+            }
+        }
+        print("Sending response:", response_data)  # Debug print
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Error in dashboard stats: {str(e)}")
+        print(traceback.format_exc())  # Print full traceback
+        return jsonify({
+            'error': f"Server error: {str(e)}",
+            'periods': [],
+            'stats': {
+                'totalStudents': 0,
+                'totalReports': 0,
+                'reportCompletion': 0,
+                'currentGroups': []
+            }
+        }), 500
     
 # @main.route('/api/dashboard', methods=['GET'])
 # @login_required

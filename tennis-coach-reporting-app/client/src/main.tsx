@@ -1,30 +1,16 @@
-// main.tsx
+// src/main.tsx
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import './index.css'
 
-// Debug logs
-console.log('🚀 main.tsx is executing');
-console.log('📝 Looking for root element...');
+const rootElement = document.getElementById('react-root')
+if (!rootElement) throw new Error('Failed to find the root element')
 
-const rootElement = document.getElementById('react-root');
-if (!rootElement) {
-  console.error('❌ Failed to find the react-root element');
-  throw new Error('Failed to find the react-root element');
-}
+const root = createRoot(rootElement)
 
-console.log('✅ Root element found:', rootElement);
-
-try {
-  const root = createRoot(rootElement);
-  console.log('🌳 Created React root');
-  
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-  console.log('🎉 React app rendered successfully');
-} catch (error) {
-  console.error('💥 Error rendering React app:', error);
-}
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
